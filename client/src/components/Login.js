@@ -1,44 +1,54 @@
-import React from "react";
-import { useHistory } from 'react-router-dom';
-import { axiosWithAuth } from '../utils/axiosWithAuth';
+import React, { useState } from "react";
+import axios from "axios";
 
-const Login = () => {
-  const history = useHistory();
-  // make a post request to retrieve a token from the api
-  // when you have handled the token, navigate to the BubblePage route
-  const [credentials, setCredentials ] = useState({
-    username: '',
-    password: ''
-  })
+const Login = props => {
+  const [user, setUser] = useState({
+    username: "Lambda School",
+    password: "i<3Lambd4"
+  });
 
   const handleChange = e => {
-    setCredentials({
-      ...credentials,
-      [e.target.name]: e.target.value
-    })
-  }
+    setUser({ ...user, [e.target.name]: e.target.value });
+  };
 
   const handleSubmit = e => {
-    e.preventDefault()
-
-    axiosWithAuth()
-      .post('/api/login', credentials)
+    e.preventDefault();
+    axios
+      .post(`http://localhost:5000/api/login`, user)
       .then(res => {
-        window.localStorage.setItem('token', res.data.payload)
-        history.push('/bubblepage')
+        console.log("Loggin in", res.data.payload);
+        props.history.push("/bubbles");
       })
-  }
+      .catch(err => console.log("trouble loggin in", err));
+  };
 
   return (
-    <>
-      <h1>Welcome to the Bubble App!</h1>
-
-      <form onSubmit={(e) => {handleSubmit(e)}}>
-        <input type='text' name='username' value={credentials.username} onChange={(e) => {handleChange(e)}} />
-        <input type='password' name='password' value={credentials.password} onChange={(e) => {handleChange(e)}} />
-        <input type='submit' value='Login' />
+    <div style={{display: "flex", flexDirection:"column", alignItems:"center", alignContent: "center" }}>
+      <h1>Welcome</h1>
+      <form>
+        <div style={{display: "flex", flexDirection:"column", alignItems:"center", alignContent: "center"  }}>
+          <label>Username</label> <br/>
+          <input
+            type="text"
+            name="username"
+            value={user.username}
+            placeholder="Enter username..."
+            onChange={handleChange}
+          /><br/>
+          <label>Password</label><br/>
+          <input
+            type="text"
+            name="password"
+            value={user.password}
+            placeholder="Enter password..."
+            onChange={handleChange}
+          /><br/>
+          <button onClick={handleSubmit} type="submit">
+            Login
+          </button>
+        </div>
       </form>
-    </>
+    </div>
   );
 };
 
